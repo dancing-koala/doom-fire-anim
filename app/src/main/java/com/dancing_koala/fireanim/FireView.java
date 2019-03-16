@@ -25,6 +25,7 @@ public class FireView extends View {
             0xFFEFEFC7, 0xFFFFFFFF
     };
 
+    // FRAME_DELAY is the delay between each animation frame (27 fps)
     private static final long FRAME_DELAY = 1000L / 27L;
 
     // mAnimRunnable animates a frame and schedules itself to animate the next one
@@ -42,18 +43,29 @@ public class FireView extends View {
 
     // mHandler is the handler used for animation
     private final Handler mHandler;
+    // mFirePaint is used to draw rhe fire bitmap on the canvas
     private final Paint mFirePaint;
+    // mProgressRandom is used to get the random progression of each pixel
     private final Random mProgressRandom;
+    // mFireWidth is the width of the fire bitmap
     private final int mFireWidth;
+    // mFireWidth is the height of the fire bitmap
     private final int mFireHeight;
 
-    private int[] mFirePixelColors;
+    // mFirePixelBuffer store the current index of the color of a pixel, used for computations
     private int[] mFirePixelBuffer;
+    // mFirePixelColors store the current color of a pixel, used for drawing
+    private int[] mFirePixelColors;
 
+    // mFireBitmap is the bitmap containing the pixels of the fire
     private Bitmap mFireBitmap;
+    // mHeight is the height of the view
     private int mHeight;
+    // mPixelScale is used for scaling the canvas
     private float mPixelScale;
+    // mWindOffset is the value used to create the wind effect
     private int mWindOffset;
+    // mPlaying stores the current state of the animation
     private boolean mPlaying;
 
     public FireView(Context context) {
@@ -73,6 +85,7 @@ public class FireView extends View {
         mFirePaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
         mProgressRandom = new Random();
 
+        // these values can be customized and could even be set using attributes
         mFireWidth = 280;
         mFireHeight = 168;
     }
@@ -83,12 +96,15 @@ public class FireView extends View {
 
         mHeight = h;
 
+        // The scale is based on the actual width of the view and the width we manually set
         mPixelScale = (float) w / (float) mFireWidth;
 
+        // Recycling the bitmap helps prevent OutOfMemory exceptions
         if (mFireBitmap != null) {
             mFireBitmap.recycle();
         }
 
+        // The bitmap is created from the manually set width and height
         mFireBitmap = Bitmap.createBitmap(mFireWidth, mFireHeight, Bitmap.Config.ARGB_8888);
 
         initFire(mFireWidth, mFireHeight);
@@ -100,16 +116,18 @@ public class FireView extends View {
         super.draw(canvas);
 
         canvas.save();
+        // Scaling helps getting a pixelated effect and saves us from doing it manually
         canvas.scale(mPixelScale, mPixelScale, 0, mHeight);
         canvas.drawBitmap(mFireBitmap, 0, mHeight - mFireHeight, mFirePaint);
         canvas.restore();
     }
 
+    // initFire initializes buffers
     private void initFire(int w, int h) {
-        mFirePixelColors = new int[w * h];
         mFirePixelBuffer = new int[w * h];
+        mFirePixelColors = new int[w * h];
 
-        for (int i = 0; i < mFirePixelColors.length - mFireWidth; i++) {
+        for (int i = 0; i < mFirePixelBuffer.length - mFireWidth; i++) {
             setPixelColor(i, 0);
         }
 
@@ -118,6 +136,7 @@ public class FireView extends View {
         }
     }
 
+    // fire spreads the fire for each pixel except for the first row
     private void fire() {
         for (int x = 0; x < mFireWidth; x++) {
             for (int y = 1; y < mFireHeight; y++) {
@@ -126,41 +145,51 @@ public class FireView extends View {
         }
     }
 
+    // spreadFire computes the color of the pixel above the src pixel
     private void spreadFire(int src) {
-        int pixel = mFirePixelColors[src];
+        int pixel = mFirePixelBuffer[src];
+
+        int randIndex = mProgressRandom.nextInt(4);
+        // The dst pixel is the combination of a random index offset & the wind offset
+        int dst = src - randIndex + 1 + mWindOffset;
 
         if (pixel == 0) {
-            setPixelColor(src - mFireWidth, 0);
+            // The src pixel is dead so we kill the dst pixel above
+            setPixelColor(Math.max(dst - mFireWidth, 0), 0);
         } else {
-            int randIndex = mProgressRandom.nextInt(4);
-            int dst = src - randIndex + 1 + mWindOffset;
+            // The dst pixel takes the value of a random pixel near src
             setPixelColor(dst - mFireWidth, pixel - (randIndex & 1));
         }
     }
 
+    // updateBitmap sets the pixels of the bitmap using the color buffer
     private void updateBitmap() {
         if (mFireBitmap == null) {
             return;
         }
 
-        mFireBitmap.setPixels(mFirePixelBuffer, 0, mFireWidth, 0, 0, mFireWidth, mFireHeight);
+        mFireBitmap.setPixels(mFirePixelColors, 0, mFireWidth, 0, 0, mFireWidth, mFireHeight);
     }
 
+    // setPixelColor sets the values for the pixel buffer & the color buffer
     private void setPixelColor(int index, int colorIndex) {
-        mFirePixelColors[index] = colorIndex;
-        mFirePixelBuffer[index] = COLOR_BUFFER[colorIndex];
+        mFirePixelBuffer[index] = colorIndex;
+        mFirePixelColors[index] = COLOR_BUFFER[colorIndex];
     }
 
+    // update computes the next frame & invalidates the view
     public void update() {
         fire();
         updateBitmap();
         invalidate();
     }
 
+    // wind sets the value of the wind used for direction
     public void wind(int direction) {
         mWindOffset = mWindOffset != 0 ? 0 : direction;
     }
 
+    // play starts the fire animation cycle
     public void play() {
         if (!mPlaying) {
             mPlaying = true;
@@ -168,6 +197,7 @@ public class FireView extends View {
         }
     }
 
+    // kill slowly kills the fire by progressively & randomly killing all the pixel sources
     public void kill() {
         if (!mPlaying) {
             reset();
@@ -178,23 +208,25 @@ public class FireView extends View {
         for (int x = 0; x < mFireWidth; x++) {
             int index = (mFireHeight - 1) * mFireWidth + x;
 
-            if (mFirePixelColors[index] > 0 && mProgressRandom.nextFloat() > 0.65f) {
-                setPixelColor(index, mFirePixelColors[index] - mProgressRandom.nextInt(4) & 3);
+            if (mFirePixelBuffer[index] > 0) {
+                if (mProgressRandom.nextFloat() > 0.2f) {
+                    setPixelColor(index, mFirePixelBuffer[index] - mProgressRandom.nextInt(4) & 3);
+                }
                 alive++;
             }
         }
 
         if (alive > 0) {
+            // The process is repeated every 15 frames if there still might be living source pixels
             mHandler.postDelayed(mKillRunnable, 15 * FRAME_DELAY);
         }
     }
 
+    // reset stops & initializes the animation
     public void reset() {
-        if (mPlaying) {
-            mHandler.removeCallbacks(mAnimRunnable);
-            mHandler.removeCallbacks(mKillRunnable);
-            mPlaying = false;
-        }
+        mHandler.removeCallbacks(mAnimRunnable);
+        mHandler.removeCallbacks(mKillRunnable);
+        mPlaying = false;
 
         mWindOffset = 0;
         initFire(mFireWidth, mFireHeight);
