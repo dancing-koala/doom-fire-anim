@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">FireAnim</string>
+    <string name="wind_direction_left"><![CDATA[<]]></string>
+    <string name="wind_direction_right"><![CDATA[>]]></string>
+    <string name="title_part_left">Do</string>
+    <string name="title_part_right">oM</string>
+</resources>

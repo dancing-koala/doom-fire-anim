@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/mainBackground"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btn_wind_left"
+        style="@style/Widget.AppCompat.ActionButton"
+        android:layout_width="@dimen/wind_btn_width"
+        android:layout_height="wrap_content"
+        android:text="@string/wind_direction_left"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/wind_btn_text_size"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/btn_wind_right"
+        style="@style/Widget.AppCompat.ActionButton"
+        android:layout_width="@dimen/wind_btn_width"
+        android:layout_height="wrap_content"
+        android:text="@string/wind_direction_right"
+        android:textColor="@android:color/white"
+        android:textSize="@dimen/wind_btn_text_size"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/title_bottom_spacing"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/lefttext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_part_left"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/title_size"
+            app:fontFamily="@font/amaz_doom_left" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/righttext"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_part_right"
+            android:textColor="@android:color/white"
+            android:textSize="@dimen/title_size"
+            app:fontFamily="@font/amaz_doom_right" />
+    </LinearLayout>
+
+    <com.dancing_koala.fireanim.FireView
+        android:id="@+id/fireview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
