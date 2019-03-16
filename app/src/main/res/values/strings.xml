@@ -1,7 +1,12 @@
 <resources>
     <string name="app_name">FireAnim</string>
-    <string name="wind_direction_left"><![CDATA[<]]></string>
-    <string name="wind_direction_right"><![CDATA[>]]></string>
+    <string name="wind_direction_left">Left</string>
+    <string name="wind_direction_right">Right</string>
     <string name="title_part_left">Do</string>
     <string name="title_part_right">oM</string>
+    <string name="wind_section_title">Wind effect</string>
+    <string name="animation">Animation</string>
+    <string name="start">Start</string>
+    <string name="stop">Kill</string>
+    <string name="reset">Reset</string>
 </resources>

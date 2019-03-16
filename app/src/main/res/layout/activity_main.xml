@@ -5,29 +5,72 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/mainBackground"
-    tools:context=".MainActivity">
+    tools:context=".MainActivity"
+    tools:ignore="RtlHardcoded">
 
-    <Button
-        android:id="@+id/btn_wind_left"
-        style="@style/Widget.AppCompat.ActionButton"
-        android:layout_width="@dimen/wind_btn_width"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/wind_direction_left"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/wind_btn_text_size"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:background="@color/colorPrimary"
+        android:padding="@dimen/base_margin"
+        app:layout_constraintTop_toTopOf="parent">
 
-    <Button
-        android:id="@+id/btn_wind_right"
-        style="@style/Widget.AppCompat.ActionButton"
-        android:layout_width="@dimen/wind_btn_width"
-        android:layout_height="wrap_content"
-        android:text="@string/wind_direction_right"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/wind_btn_text_size"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <TextView
+            android:id="@+id/title_wind"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/wind_section_title"
+            android:textColor="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/btn_wind_left"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="@id/btn_wind_left" />
+
+        <Button
+            android:id="@+id/btn_wind_left"
+            style="@style/AppTheme.Button"
+            android:text="@string/wind_direction_left"
+            app:layout_constraintLeft_toRightOf="@id/title_wind"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/btn_wind_right"
+            style="@style/AppTheme.Button"
+            android:text="@string/wind_direction_right"
+            app:layout_constraintLeft_toRightOf="@id/btn_wind_left"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/title_animation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/base_margin"
+            android:text="@string/animation"
+            android:textColor="@android:color/white"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/btn_wind_left" />
+
+        <Button
+            android:id="@+id/btn_anim_start"
+            style="@style/AppTheme.Button"
+            android:text="@string/start"
+            app:layout_constraintLeft_toRightOf="@id/title_animation"
+            app:layout_constraintTop_toBottomOf="@id/btn_wind_left" />
+
+        <Button
+            android:id="@+id/btn_anim_stop"
+            style="@style/AppTheme.Button"
+            android:text="@string/stop"
+            app:layout_constraintLeft_toRightOf="@id/btn_anim_start"
+            app:layout_constraintTop_toTopOf="@id/btn_anim_start" />
+
+        <Button
+            android:id="@+id/btn_anim_reset"
+            style="@style/AppTheme.Button"
+            android:text="@string/reset"
+            app:layout_constraintLeft_toRightOf="@id/btn_anim_stop"
+            app:layout_constraintTop_toTopOf="@id/btn_anim_start" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -59,7 +102,8 @@
     <com.dancing_koala.fireanim.FireView
         android:id="@+id/fireview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_percent=".5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

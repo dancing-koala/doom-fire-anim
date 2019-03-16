@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 
 public class FireView extends View {
 
-    // Colors used to obtain the fire looking gradient
+    // COLOR_BUFFER contains the colors used to obtain the fire looking gradient
     private static final int[] COLOR_BUFFER = {
             0x00070707, 0xFF1F0707, 0xFF2F0F07, 0xFF470F07, 0xFF571707, 0xFF671F07, 0xFF771F07,
             0xFF8F2707, 0xFF9F2F07, 0xFFAF3F07, 0xFFBF4707, 0xFFC74707, 0xFFDF4F07, 0xFFDF5707,
@@ -27,13 +27,20 @@ public class FireView extends View {
 
     private static final long FRAME_DELAY = 1000L / 27L;
 
+    // mAnimRunnable animates a frame and schedules itself to animate the next one
     private final Runnable mAnimRunnable = new Runnable() {
         @Override
         public void run() {
             update();
-            mHandler.postDelayed(this, FRAME_DELAY);
+            if (mPlaying) {
+                mHandler.postDelayed(this, FRAME_DELAY);
+            }
         }
     };
+    // mKillRunnable slowly kills the fire animation
+    private final Runnable mKillRunnable = this::kill;
+
+    // mHandler is the handler used for animation
     private final Handler mHandler;
     private final Paint mFirePaint;
     private final Random mProgressRandom;
@@ -48,7 +55,6 @@ public class FireView extends View {
     private float mPixelScale;
     private int mWindOffset;
     private boolean mPlaying;
-
 
     public FireView(Context context) {
         this(context, null, 0);
@@ -151,9 +157,42 @@ public class FireView extends View {
         invalidate();
     }
 
+    public void wind(int direction) {
+        mWindOffset = mWindOffset != 0 ? 0 : direction;
+    }
+
+    public void play() {
+        if (!mPlaying) {
+            mPlaying = true;
+            mAnimRunnable.run();
+        }
+    }
+
+    public void kill() {
+        if (!mPlaying) {
+            reset();
+            return;
+        }
+
+        int alive = 0;
+        for (int x = 0; x < mFireWidth; x++) {
+            int index = (mFireHeight - 1) * mFireWidth + x;
+
+            if (mFirePixelColors[index] > 0 && mProgressRandom.nextFloat() > 0.65f) {
+                setPixelColor(index, mFirePixelColors[index] - mProgressRandom.nextInt(4) & 3);
+                alive++;
+            }
+        }
+
+        if (alive > 0) {
+            mHandler.postDelayed(mKillRunnable, 15 * FRAME_DELAY);
+        }
+    }
+
     public void reset() {
         if (mPlaying) {
             mHandler.removeCallbacks(mAnimRunnable);
+            mHandler.removeCallbacks(mKillRunnable);
             mPlaying = false;
         }
 
@@ -161,28 +200,5 @@ public class FireView extends View {
         initFire(mFireWidth, mFireHeight);
         updateBitmap();
         invalidate();
-    }
-
-    public void kill() {
-        for (int x = 0; x < mFireWidth; x++) {
-            int index = (mFireHeight - 1) * mFireWidth + x;
-
-            if (mFirePixelColors[index] > 0) {
-                setPixelColor(index, mFirePixelColors[index] - mProgressRandom.nextInt(4) & 3);
-            }
-        }
-    }
-
-    public void wind(int direction) {
-        mWindOffset = mWindOffset != 0 ? 0 : direction;
-    }
-
-    public void play() {
-        if (mPlaying) {
-            kill();
-        } else {
-            mPlaying = true;
-            mAnimRunnable.run();
-        }
     }
 }
